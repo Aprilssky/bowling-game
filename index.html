@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎳 Bowling Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      overflow: hidden;
+      background: #1a1a2e;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+      cursor: crosshair;
+    }
+    canvas { display: block; }
+
+    #ui {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* ── Power meter ── */
+    #power-meter {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 200px;
+      background: rgba(0,0,0,0.6);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 12px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    #power-meter.visible { opacity: 1; }
+    #power-fill {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(to top, #4ecdc4, #ff6b6b);
+      border-radius: 0 0 10px 10px;
+      transition: height 0.05s;
+    }
+
+    /* ── Scoreboard ── */
+    #scoreboard {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 12px 20px;
+      color: #fff;
+      font-size: 14px;
+      min-width: 500px;
+      backdrop-filter: blur(8px);
+      pointer-events: auto;
+    }
+    #scoreboard table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+    #scoreboard th {
+      padding: 2px 6px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    #scoreboard td {
+      padding: 3px 6px;
+      font-size: 13px;
+    }
+    #scoreboard .cell {
+      min-width: 42px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    #scoreboard .cell:last-child { border-right: none; }
+    #scoreboard .frame-num {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+    }
+    #scoreboard .rolls {
+      font-size: 12px;
+      color: #ffd93d;
+    }
+    #scoreboard .score-val {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+    #scoreboard .current-frame {
+      background: rgba(78, 205, 196, 0.15);
+      border-radius: 4px;
+    }
+    #total-score {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ffd93d;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    /* ── Status / Hint ── */
+    #hint {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.6);
+      font-size: 15px;
+      text-align: center;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      transition: opacity 0.3s;
+    }
+    #hint strong { color: #ffd93d; }
+
+    /* ── Game Over ── */
+    #game-over {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 20px;
+      padding: 40px 60px;
+      text-align: center;
+      color: #fff;
+      backdrop-filter: blur(12px);
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+    #game-over.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #game-over h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    #game-over .final-score {
+      font-size: 64px;
+      font-weight: 800;
+      color: #ffd93d;
+      margin: 10px 0;
+    }
+    #game-over .sub {
+      font-size: 16px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 20px;
+    }
+    #restart-btn {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: #fff;
+      border: none;
+      padding: 12px 40px;
+      font-size: 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: transform 0.2s;
+    }
+    #restart-btn:hover { transform: scale(1.05); }
+
+    /* ── Aim guide arrow (lane overlay) ── */
+    #aim-line {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4));
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    #aim-line.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <!-- Power Meter -->
+    <div id="power-meter">
+      <div id="power-fill"></div>
+    </div>
+
+    <!-- Scoreboard -->
+    <div id="scoreboard">
+      <table>
+        <thead>
+          <tr id="frame-headers"></tr>
+        </thead>
+        <tbody>
+          <tr id="rolls-row"></tr>
+          <tr id="scores-row"></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="total-score"></div>
+
+    <!-- Hint -->
+    <div id="hint">🎳 <strong>鼠标左右移动</strong>瞄准 · 按住拖拽蓄力 · 释放投球</div>
+
+    <!-- Aim guide -->
+    <div id="aim-line"></div>
+
+    <!-- Game Over -->
+    <div id="game-over">
+      <h1>🎳 游戏结束</h1>
+      <div class="final-score" id="final-score">0</div>
+      <div class="sub">最终得分</div>
+      <button id="restart-btn">再来一局</button>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
