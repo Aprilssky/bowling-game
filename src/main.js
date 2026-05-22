@@ -403,14 +403,13 @@ const aimLine = document.getElementById('aim-line');
 el.addEventListener('mousemove', (e) => {
   const rect = el.getBoundingClientRect();
   const x = ((e.clientX - rect.left) / rect.width) * 2 - 1; // -1 to 1
-  aimAngle = x * 0.4; // max aim angle
+  aimAngle = x * 0.8; // max aim angle ±46°
 
   if (state === State.IDLE || state === State.POWERING) {
-    // Update aim line on the lane
+    // Aim line from ball position down the lane
+    const startX = CFG.ballStartX;
     const startZ = CFG.ballStartZ;
-    const worldX = x * (CFG.laneWidth / 2) * 0.8;
-    const lineLength = 8;
-    updateAimLine(worldX, startZ, aimAngle, lineLength);
+    updateAimLine(startX, startZ, aimAngle, 8);
   }
 
   if (state === State.POWERING && mouseDownPos) {
@@ -480,13 +479,12 @@ el.addEventListener('touchend', (e) => {
   else state = State.IDLE;
 }, { passive: false });
 
-function updateAimLine(worldX, startZ, angle, length) {
-  const endX = worldX + Math.sin(angle) * length;
+function updateAimLine(startX, startZ, angle, length) {
+  const endX = startX + Math.sin(angle) * length;
   const endZ = startZ - Math.cos(angle) * length;
 
-  // Project to screen
-  const start3 = new THREE.Vector3(worldX, CFG.laneY + 0.01, startZ);
-  const end3 = new THREE.Vector3(endX, CFG.laneY + 0.01, endZ);
+  const start3 = new THREE.Vector3(startX, CFG.laneY + 0.02, startZ);
+  const end3 = new THREE.Vector3(endX, CFG.laneY + 0.02, endZ);
   start3.project(camera);
   end3.project(camera);
 
@@ -500,7 +498,7 @@ function updateAimLine(worldX, startZ, angle, length) {
   const len = Math.sqrt(dx * dx + dy * dy);
   const angleDeg = Math.atan2(dx, -dy) * (180 / Math.PI);
 
-  aimLine.style.width = `${len}px`;
+  aimLine.style.setProperty('--aim-length', `${len}px`);
   aimLine.style.left = `${sx}px`;
   aimLine.style.top = `${sy}px`;
   aimLine.style.transform = `rotate(${angleDeg}deg)`;
@@ -920,10 +918,7 @@ function animate() {
 
   // Update aim line during POWERING
   if (state === State.POWERING) {
-    const rect = el.getBoundingClientRect();
-    const x = aimAngle / 0.4;
-    const worldX = x * (CFG.laneWidth / 2) * 0.8;
-    updateAimLine(worldX, CFG.ballStartZ, aimAngle, 8);
+    updateAimLine(CFG.ballStartX, CFG.ballStartZ, aimAngle, 8);
   }
 
   renderer.render(scene, camera);
