@@ -6,8 +6,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   build-and-deploy:
@@ -19,25 +17,12 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install dependencies
-        run: |
-          npm install --legacy-peer-deps
-          
-      - name: Build
-        run: npm run build
+      - run: npm ci
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - run: npm run build
+
+      - uses: peaceiris/actions-gh-pages@v4
         with:
-          path: ./dist
-
-  deploy:
-    needs: build-and-deploy
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          enable_jekyll: false
