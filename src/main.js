@@ -127,7 +127,7 @@ world.addContactMaterial(contactMat);
 
 const laneBody = new CANNON.Body({ mass: 0, material: physicsMat });
 laneBody.addShape(new CANNON.Box(new CANNON.Vec3(CFG.laneWidth / 2, 0.05, CFG.laneLength / 2)));
-laneBody.position.set(0, CFG.laneY - 0.05, -CFG.laneLength / 2 + 1);
+laneBody.position.set(0, CFG.laneY - 0.05, -CFG.laneLength / 2 + 2);
 world.addBody(laneBody);
 
 // Visual lane
@@ -139,7 +139,7 @@ const laneMat = new THREE.MeshStandardMaterial({
   metalness: 0.0,
 });
 const laneMesh = new THREE.Mesh(laneGeo, laneMat);
-laneMesh.position.set(0, CFG.laneY, -CFG.laneLength / 2 + 1);
+laneMesh.position.set(0, CFG.laneY, -CFG.laneLength / 2 + 2);
 laneMesh.receiveShadow = true;
 scene.add(laneMesh);
 
@@ -175,7 +175,7 @@ for (const sign of [-1, 1]) {
   // Physics gutter
   const gutterBody = new CANNON.Body({ mass: 0, material: physicsMat });
   gutterBody.addShape(new CANNON.Box(new CANNON.Vec3(CFG.gutterWidth / 2, 0.03, CFG.laneLength / 2)));
-  gutterBody.position.set(gx, CFG.laneY - CFG.gutterDepth, -CFG.laneLength / 2 + 1);
+  gutterBody.position.set(gx, CFG.laneY - CFG.gutterDepth, -CFG.laneLength / 2 + 2);
   world.addBody(gutterBody);
 
   // Visual gutter
@@ -183,7 +183,7 @@ for (const sign of [-1, 1]) {
     new THREE.BoxGeometry(CFG.gutterWidth, 0.04, CFG.laneLength),
     gutterMat
   );
-  gutterMesh.position.set(gx, CFG.laneY - CFG.gutterDepth, -CFG.laneLength / 2 + 1);
+  gutterMesh.position.set(gx, CFG.laneY - CFG.gutterDepth, -CFG.laneLength / 2 + 2);
   scene.add(gutterMesh);
 
   // Gutter wall
@@ -191,7 +191,7 @@ for (const sign of [-1, 1]) {
     new THREE.BoxGeometry(0.03, 0.08, CFG.laneLength),
     new THREE.MeshStandardMaterial({ color: 0x225566 })
   );
-  wallMesh.position.set(sign * (CFG.laneWidth / 2 + 0.015), CFG.laneY + 0.02, -CFG.laneLength / 2 + 1);
+  wallMesh.position.set(sign * (CFG.laneWidth / 2 + 0.015), CFG.laneY + 0.02, -CFG.laneLength / 2 + 2);
   scene.add(wallMesh);
 }
 
