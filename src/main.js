@@ -526,8 +526,8 @@ function throwBall() {
   const vz = -Math.cos(aimAngle) * speed;
 
   ballBody.velocity.set(vx, 0, vz);
-  // Forward spin
   ballBody.angularVelocity.set(speed * 2, 0, 0);
+  ballBody.wakeUp();
 
   updateHint('🎳 球出去了……');
 }
