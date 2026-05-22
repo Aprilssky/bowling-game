@@ -840,25 +840,16 @@ function resetGame() {
 //  CAMERA
 // ═══════════════════════════════════════════
 
-function updateCamera() {
-  const bx = ballBody.position.x;
-  const bz = ballBody.position.z;
+// Fixed camera state - never follows the ball
+let camTarget = { x: 0, z: 4.5 };
 
-  if (state === State.THROWING || state === State.SETTLING) {
-    // Follow ball down the lane
-    const targetZ = Math.max(bz - 3, -CFG.laneLength + 4);
-    const targetX = bx * 0.3;
-    camera.position.x += (targetX - camera.position.x) * 0.02;
-    camera.position.z += (targetZ - camera.position.z) * 0.02;
-    camera.lookAt(bx * 0.5, 0, (bz + targetZ) / 2);
-  } else {
-    // Return to default position
-    const targetZ = 4.5;
-    const targetX = 0;
-    camera.position.z += (targetZ - camera.position.z) * 0.03;
-    camera.position.x += (targetX - camera.position.x) * 0.03;
-    camera.lookAt(0, 0, -4);
-  }
+function updateCamera() {
+  // Smooth return to fixed position (only transitions)
+  const tz = 4.5;
+  const tx = 0;
+  camera.position.x += (tx - camera.position.x) * 0.03;
+  camera.position.z += (tz - camera.position.z) * 0.03;
+  camera.lookAt(0, 0, -5);
 }
 
 // ═══════════════════════════════════════════
