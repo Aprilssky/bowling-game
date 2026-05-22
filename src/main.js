@@ -413,8 +413,8 @@ el.addEventListener('mousemove', (e) => {
     updateAimLine(worldX, startZ, aimAngle, lineLength);
   }
 
-  if (state === State.POWERING && isMouseDown && mouseDownPos) {
-    const dy = mouseDownPos.y - e.clientY;
+  if (state === State.POWERING && mouseDownPos) {
+    const dy = e.clientY - mouseDownPos.y;
     power = Math.max(0, Math.min(1, dy * CFG.dragPowerScale));
     powerFill.style.height = `${power * 100}%`;
   }
@@ -432,8 +432,7 @@ el.addEventListener('mousedown', (e) => {
 });
 
 el.addEventListener('mouseup', (e) => {
-  if (state !== State.POWERING || !isMouseDown) return;
-  isMouseDown = false;
+  if (state !== State.POWERING || !mouseDownPos) return;
   mouseDownPos = null;
   powerMeter.classList.remove('visible');
 
@@ -459,14 +458,14 @@ el.addEventListener('touchstart', (e) => {
 
 el.addEventListener('touchmove', (e) => {
   e.preventDefault();
-  if (state !== State.POWERING || !isMouseDown) return;
+  if (state !== State.POWERING || !mouseDownPos) return;
   const t = e.touches[0];
   const rect = el.getBoundingClientRect();
   const x = ((t.clientX - rect.left) / rect.width) * 2 - 1;
   aimAngle = x * 0.4;
 
   if (mouseDownPos) {
-    const dy = mouseDownPos.y - t.clientY;
+    const dy = t.clientY - mouseDownPos.y;
     power = Math.max(0, Math.min(1, dy * CFG.dragPowerScale));
     powerFill.style.height = `${power * 100}%`;
   }
@@ -474,8 +473,7 @@ el.addEventListener('touchmove', (e) => {
 
 el.addEventListener('touchend', (e) => {
   e.preventDefault();
-  if (state !== State.POWERING || !isMouseDown) return;
-  isMouseDown = false;
+  if (state !== State.POWERING || !mouseDownPos) return;
   mouseDownPos = null;
   powerMeter.classList.remove('visible');
   if (power > 0.02) throwBall();
