@@ -11,7 +11,7 @@ const CFG = {
   laneY: 0,
   gutterWidth: 0.25,
   gutterDepth: 0.06,
-  ballRadius: 0.12,
+  ballRadius: 0.14,
   ballMass: 6,
   pinHeight: 0.38,
   pinBottomR: 0.055,
@@ -36,9 +36,9 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a1a2e);
 scene.fog = new THREE.Fog(0x1a1a2e, 20, 35);
 
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 3.0, 4.5);
-camera.lookAt(0, 0, -4);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 2.5, 3.5);
+camera.lookAt(0, 0.1, -1);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -325,12 +325,12 @@ function initPins() {
 const ballMesh = new THREE.Mesh(
   new THREE.SphereGeometry(CFG.ballRadius, 32, 32),
   new THREE.MeshPhysicalMaterial({
-    color: 0x224466,
-    roughness: 0.15,
-    metalness: 0.3,
-    clearcoat: 0.4,
-    clearcoatRoughness: 0.2,
-    envMapIntensity: 0.6,
+    color: 0x4488cc,
+    roughness: 0.10,
+    metalness: 0.4,
+    clearcoat: 0.5,
+    clearcoatRoughness: 0.15,
+    envMapIntensity: 0.8,
   })
 );
 ballMesh.castShadow = true;
@@ -840,16 +840,13 @@ function resetGame() {
 //  CAMERA
 // ═══════════════════════════════════════════
 
-// Fixed camera state - never follows the ball
-let camTarget = { x: 0, z: 4.5 };
-
+// Fixed camera - never follows the ball
 function updateCamera() {
-  // Smooth return to fixed position (only transitions)
-  const tz = 4.5;
   const tx = 0;
+  const tz = 3.5;
   camera.position.x += (tx - camera.position.x) * 0.03;
   camera.position.z += (tz - camera.position.z) * 0.03;
-  camera.lookAt(0, 0, -5);
+  camera.lookAt(0, 0.1, -1);
 }
 
 // ═══════════════════════════════════════════
