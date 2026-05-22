@@ -483,31 +483,42 @@ function updateAimLine(startX, startZ, angle, length) {
   const endX = startX + Math.sin(angle) * length;
   const endZ = startZ - Math.cos(angle) * length;
 
+  // Ensure camera matrices are up-to-date for projection
+  camera.updateMatrixWorld();
+
   const start3 = new THREE.Vector3(startX, CFG.laneY + 0.02, startZ);
   const end3 = new THREE.Vector3(endX, CFG.laneY + 0.02, endZ);
   start3.project(camera);
   end3.project(camera);
 
-  const sx = (start3.x * 0.5 + 0.5) * window.innerWidth;
-  const ex = (end3.x * 0.5 + 0.5) * window.innerWidth;
-  const sy = (1 - (start3.y * 0.5 + 0.5)) * window.innerHeight;
-  const ey = (1 - (end3.y * 0.5 + 0.5)) * window.innerHeight;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const sx = (start3.x * 0.5 + 0.5) * w;
+  const sy = (1 - (start3.y * 0.5 + 0.5)) * h;
+  const ex = (end3.x * 0.5 + 0.5) * w;
+  const ey = (1 - (end3.y * 0.5 + 0.5)) * h;
+
+  // Skip if off-screen
+  if (sx < 0 || sx > w || sy < 0 || sy > h) return;
 
   const dx = ex - sx;
   const dy = ey - sy;
-  const len = Math.sqrt(dx * dx + dy * dy);
+  const len = Math.max(10, Math.sqrt(dx * dx + dy * dy));
   const angleDeg = Math.atan2(dx, -dy) * (180 / Math.PI);
 
-  aimLine.style.setProperty('--aim-length', `${len}px`);
-  aimLine.style.left = `${sx}px`;
-  aimLine.style.top = `${sy}px`;
-  aimLine.style.transform = `rotate(${angleDeg}deg)`;
-  aimLine.style.transformOrigin = '0 0';
-  aimLine.classList.add('visible');
+  aimLine.style.cssText = `
+    left:${sx}px;
+    top:${sy}px;
+    width:3px;
+    height:${len}px;
+    transform:rotate(${angleDeg}deg);
+    transform-origin:0 0;
+    opacity:1;
+  `;
 }
 
 function hideAimLine() {
-  aimLine.classList.remove('visible');
+  aimLine.style.opacity = '0';
 }
 
 // ═══════════════════════════════════════════
